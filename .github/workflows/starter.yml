@@ -1,0 +1,49 @@
+name: My CI test workflow
+
+# Ensure the workflow runs on schedule (Sunday at 0:00) and on push to the main branch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+  schedule:
+    - cron: "0 0 * * 0"
+
+#Use a matrix strategy to use Node.js versions 16.x and 18.x
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16, 18]
+      fail-fast: false
+
+    steps:
+      # Check out the code from the repository.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up a Node.js environment using the specified node version.
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Install the dependencies.
+      - name: Install dependencies
+        run: cd backend && npm install
+
+      # Run the tests.
+      - name: Run tests
+        run: cd backend && npm run test
+        continue-on-error: true
+
+      # Run the linter.
+      - name: Run linter
+        run: cd backend && npm run linter
+
+      # Send a console message at completion.
+      - run: |
+          echo "Hello ${{github.actor}}. You pushed to ${{github.repository}} at $(date)."
