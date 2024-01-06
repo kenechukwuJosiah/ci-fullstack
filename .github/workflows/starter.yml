@@ -42,7 +42,7 @@ jobs:
 
       # Run the linter.
       - name: Run linter
-        run: cd backend && npm run linter
+        run: cd backend && npm run lint
 
       # Send a console message at completion.
       - run: |
